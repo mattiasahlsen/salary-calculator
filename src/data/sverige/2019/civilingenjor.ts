@@ -1,5 +1,7 @@
 // based on data from 2019
 
+import SalaryData from '../../types'
+
 export default {
   'Stockholm': {
     // data from 2018 and 2019
@@ -12,9 +14,9 @@ export default {
       25: 33000,
       50: 34500,
       75: 37000,
-      100: 41000,
+      90: 41000,
     },
-    increasePerYear: {
+    yearlyIncrease: {
       // average increase per yer in 5-year spans
       // 0-5 years, 5-10 years, 10-15 years, 15-20 years, 20-25 years
 
@@ -36,7 +38,7 @@ export default {
       75: 35700,
       90: 39000,
     },
-    increasePerYear: {
+    yearlyIncrease: {
       mean: [ 1913,1731,1573,1471,1391],
       10: [ 1106,950,843,776,706],
       25: [ 1316,1175,1059,968,888],
@@ -45,4 +47,4 @@ export default {
       90: [ 3455,2796,2532,2362,2219],
     }
   }
-}
+} as SalaryData

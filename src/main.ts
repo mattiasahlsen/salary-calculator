@@ -4,6 +4,11 @@ import App from './App.vue'
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 
+import './styles/main.scss'
+import 'tailwindcss/dist/base.css'
+import 'tailwindcss/dist/components.css'
+import 'tailwindcss/dist/utilities.css'
+
 const requireComponent = require.context(
   './components',
   false,

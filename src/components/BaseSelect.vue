@@ -2,7 +2,7 @@
   <label v-if="label">{{label}}</label>
   <select
     :value="modelValue"
-    class="field"
+    class="ml-1 field"
     v-bind="{
       ...$attrs,
       onChange: $event => { $emit('update:modelValue', $event.target.value) }

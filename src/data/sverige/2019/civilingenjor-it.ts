@@ -1,5 +1,7 @@
 // data for engineers with IT-major working in IT
 
+import SalaryData from '../../types'
+
 export default {
   'Stockholm': {
     // data from 2018 and 2019
@@ -44,4 +46,4 @@ export default {
       90: [ 3510,2782,2200,1888,1559],
     }
   }
-}
+} as SalaryData
