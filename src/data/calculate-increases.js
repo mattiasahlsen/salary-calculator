@@ -1,43 +1,64 @@
-const lines = `
-68398
-66710
-65996
-63691
-63047
-62091
-60723
-60061
-58676
-58381
-56510
-55201
-54032
-52046
-51976
-49747
-49078
-47584
-45066
-45041
-43290
-41822
-39470
-37251
-35279
-33550
-`
-const salaries = lines.split('\n').filter(s => !!s).reverse()
-const increases = []
-for (let i = 1; i < salaries.length; i++) {
-  const s1 = parseInt(salaries[i])
-  const s2 = parseInt(salaries[i - 1])
-  increases.push(s1 - s2)
+const horizontalLines = `
+68398	47175	52726	61135	72800	89807
+66710	47350	52500	60000	71135	87600
+65996	47055	52317	59525	70900	91500
+63691	46200	51400	58200	68862	85000
+63047	45531	51295	57700	67377	83612
+62091	45872	50800	57156	67000	80417
+60723	44600	49400	56000	64800	80000
+60061	44739	49519	55000	65000	78312
+58676	43750	48010	54084	62862	77000
+58381	43000	47630	53719	62000	78500
+56510	42500	46850	52500	61000	74000
+55201	41610	45900	51450	60000	71500
+54032	41915	45600	50500	57900	68900
+52046	40380	44390	49397	56000	66353
+51976	40300	44100	48920	55000	66000
+49747	39000	42100	46817	53000	62000
+49078	39000	42062	46400	53000	61000
+47584	37800	41000	45000	50417	59500
+45066	37500	40400	43500	48100	54600
+45041	36480	39200	42800	47825	56000
+43290	35800	38100	41273	46000	52959
+41822	34800	36862	39900	44000	51990
+39470	33800	35600	38000	41800	46300
+37251	32800	34500	36387	39000	43000
+35279	31461	32900	34400	36500	40100
+33550	30417	31650	33000	34862	36500
+`.split('\n').filter(l => !!l)
+const verticalLines = [[], [], [], [], [], []]
+horizontalLines.map(line => {
+  line.split(/\s/).filter(n => !!n).forEach((n, i) => {
+    verticalLines[i].push(parseInt(n))
+  })
+})
+const salaryGroups = verticalLines.map(l => l.reverse())
+
+const getIncreases = (groupName, salaries) => {
+  const minSalary = salaries.reduce((minSalary, s) => minSalary < s ? minSalary : s)
+
+  salaries.splice(0, 1) // remove first year's salary
+
+  const increasePerYear = salaries.map((salary, index) => Math.floor((salary - minSalary) / (index + 1)))
+
+  const spans = []
+  while (increasePerYear.length > 0) {
+    spans.push(increasePerYear.splice(0, 5))
+  }
+
+  spans.forEach(s => {
+    if (s.length !== 5) throw new Error('invalid span length')
+  })
+
+  const averageIncreasesPerYear = spans.map(span => {
+    return Math.floor(span.reduce((sum, increasePerYear) => sum + increasePerYear) / span.length)
+  })
+  console.log(groupName + ': [', averageIncreasesPerYear + '],')
 }
-const totals = []
-while (increases.length > 0) {
-  const span = increases.splice(0, 5)
-  console.log(span.length)
-  totals.push(span.reduce((prev, curr) => prev + curr, 0))
-}
-const means = totals.map(t => t / 5)
-console.log('means:', means)
+
+getIncreases('mean', salaryGroups[0])
+getIncreases('10', salaryGroups[1])
+getIncreases('25', salaryGroups[2])
+getIncreases('50', salaryGroups[3])
+getIncreases('75', salaryGroups[4])
+getIncreases('90', salaryGroups[5])
