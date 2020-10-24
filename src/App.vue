@@ -11,12 +11,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import BaseSelect from './components/BaseSelect.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    BaseSelect,
   },
   data() {
     return {
