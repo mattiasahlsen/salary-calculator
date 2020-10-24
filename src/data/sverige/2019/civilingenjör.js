@@ -1,5 +1,8 @@
+// based on data from 2019
+
 export default {
   'Stockholm': {
+    // data from 2018 and 2019
     firstJob: {
       surveyd: 900,
       mean: 35658,
@@ -12,6 +15,7 @@ export default {
       100: 41000,
     },
     increasePerYear: {
+      // average increase per yer in 5-year spans
       // 0-5 years, 5-10 years, 10-15 years, 15-20 years, 20-25 years
       mean: [ 2331.2, 1479.2, 1565.8, 1341.6, 569.2 ],
       10: [ 1198, 602, 960, 670.2, 409.8 ],
@@ -32,7 +36,6 @@ export default {
       90: 39000,
     },
     increasePerYear: {
-      // 0-5 years, 5-10 years, 10-15 years, 15-20 years, 20-25 years
       mean: [ 1948, 1291.4, 1352.6, 1116.2, 1261.4 ],
       10: [ 1076.6, 640, 700, 674.4, 260.6 ],
       25: [ 1290, 800, 950, 790, 385.2 ],
