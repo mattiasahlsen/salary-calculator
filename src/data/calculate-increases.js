@@ -29,12 +29,22 @@ const horizontalLines = `
 const verticalLines = [[], [], [], [], [], []]
 horizontalLines.map(line => {
   line.split(/\s/).filter(n => !!n).forEach((n, i) => {
-    verticalLines[i].push(parseInt(n))
+    verticalLines[i].push(n)
   })
 })
-const salaryGroups = verticalLines.map(l => l.reverse())
+const salaryGroups = verticalLines.map(l => l
+  .reverse()
+  .map((value, i, allValues) => parseInt(value) || parseInt(allValues[i - 1]))
+)
+// console.log(salaryGroups)
+console.log('mean:', '[' + salaryGroups[0] + '],')
+console.log('10:', '[' + salaryGroups[1] + '],')
+console.log('25:', '[' + salaryGroups[2] + '],')
+console.log('50:', '[' + salaryGroups[3] + '],')
+console.log('75:', '[' + salaryGroups[4] + '],')
+console.log('90:', '[' + salaryGroups[5] + '],')
 
-const getIncreases = (groupName, salaries) => {
+/*const getIncreases = (groupName, salaries) => {
   const minSalary = salaries.reduce((minSalary, s) => minSalary < s ? minSalary : s)
 
   salaries.splice(0, 1) // remove first year's salary
@@ -61,4 +71,4 @@ getIncreases('10', salaryGroups[1])
 getIncreases('25', salaryGroups[2])
 getIncreases('50', salaryGroups[3])
 getIncreases('75', salaryGroups[4])
-getIncreases('90', salaryGroups[5])
+getIncreases('90', salaryGroups[5])*/

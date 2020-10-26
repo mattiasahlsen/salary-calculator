@@ -1,5 +1,5 @@
 
-interface RegionSalaryData {
+export interface RegionSalaryData {
   firstJob: {
       surveyd: number;
       mean: number;
@@ -17,6 +17,7 @@ interface RegionSalaryData {
       75: number[];
       90: number[];
   };
+  data: { [key: string]: any };
 }
 
 export default interface SalaryData {

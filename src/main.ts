@@ -24,7 +24,6 @@ requireComponent.keys().forEach(fileName => {
     camelCase(fileName.replace(/^\.\/(.*)\.\w+$/, '$1'))
   )
 
-  console.log(componentName, componentConfig.default || componentConfig)
   app.component(componentName, componentConfig.default || componentConfig)
 })
 
