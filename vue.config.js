@@ -4,7 +4,25 @@ module.exports = {
   chainWebpack: config => {
     const types = ['vue-modules', 'vue', 'normal-modules', 'normal']
     types.forEach(type => addStyleResource(config.module.rule('scss').oneOf(type)))
+
+    config.module
+      .rule('bin')
+      .test(/\.bin$/i)
+      .use('raw-loader')
+        .loader('raw-loader')
+        .end()
   },
+
+  /*configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.bin$/i,
+          use: 'raw-loader',
+        },
+      ],
+    }
+  }*/
 }
 
 function addStyleResource (rule) {

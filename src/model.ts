@@ -7,7 +7,7 @@ type DataPoint = { salary: number; experience: number }
 type TrainingData = DataPoint[]
 
 const BATCH_SIZE = 32
-const EPOCHS = 100
+const EPOCHS = 20
 
 const INPUT_DIM = 3
 
@@ -118,11 +118,11 @@ async function trainModel(model: tf.Sequential, inputs: RankTensor, labels: Rank
     batchSize,
     epochs,
     shuffle: true,
-    callbacks: tfvis.show.fitCallbacks(
+    /*callbacks: tfvis.show.fitCallbacks(
       { name: 'Training Performance' },
       ['loss', 'mse'], 
       { height: 200, callbacks: ['onEpochEnd'] }
-    )
+    )*/
   });
 }
 
@@ -155,7 +155,7 @@ function testModel(
 
     const xTensorData = convertToTensor(testData, INPUT_DIM, inputMin, inputMax)
     const xs = xTensorData.tensor
-    console.log('xs', xs.dataSync())
+    //console.log('xs', xs.dataSync())
     const preds = model.predict(xs);      
     
     const unNormXs = xs
@@ -166,7 +166,7 @@ function testModel(
       .mul(labelMax.sub(labelMin))
       .add(labelMin);
 
-    console.log('predictions', (unNormPreds as RankTensor).dataSync())
+    //console.log('predictions', (unNormPreds as RankTensor).dataSync())
     
     // Un-normalize the data
     return [unNormXs.dataSync(), unNormPreds.dataSync()];
@@ -188,9 +188,9 @@ function testModel(
   plot(originalPoints, predictedPoints)
 }
 
-export default async function run(data: TrainingData) {
+export default async function newModel(data: TrainingData) {
   const model = createModel(INPUT_DIM)
-  tfvis.show.modelSummary({name: 'Model Summary'}, model);
+  //tfvis.show.modelSummary({name: 'Model Summary'}, model);
 
   const {inputs} = transformInputData( data.map(dataPoint => dataPoint.experience) )
   const inputTensorData = convertToTensor(inputs, INPUT_DIM)
@@ -200,16 +200,18 @@ export default async function run(data: TrainingData) {
   const labelTensorData = convertToTensor(labels, 1)
   const labelTensor = labelTensorData.tensor
 
+  /*
   console.log('input min', inputTensorData.min.dataSync())
   console.log('input max', inputTensorData.max.dataSync())
   console.log('label min', labelTensorData.min.dataSync())
   console.log('label max', labelTensorData.max.dataSync())
+  */
       
   // Train the model  
   await trainModel(model, inputTensor, labelTensor);
   console.log('Done Training');
-  console.log('weights', model.getWeights())
-  console.log('weights values:', await Promise.all(model.getWeights().map(w => w.data())))
+  //console.log('weights', model.getWeights())
+  //console.log('weights values:', await Promise.all(model.getWeights().map(w => w.data())))
    
 
   testModel(model, data, {
@@ -218,4 +220,19 @@ export default async function run(data: TrainingData) {
     labelMin: labelTensorData.min,
     labelMax: labelTensorData.max,
   });
+
+  return model
+}
+
+// import file1 from './data/sverige/2019/weights/civing-Hela Sverige-50.weights.bin'
+// import file2 from './data/sverige/2019/weights/civing-Hela Sverige-50.json'
+// console.log(file1)
+// console.log(file2)
+export async function loadModel(modelName: string) {
+  console.log(modelName)
+  const model = await tf.loadLayersModel('/model.json')
+  console.log(model)
+  console.log(model.getWeights())
+  console.log('weights values:', await Promise.all(model.getWeights().map(w => w.data())))
+  return model
 }
