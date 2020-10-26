@@ -94,11 +94,11 @@ function convertToTensor(inputs: number[][], inputDim: number, min?: RankTensor,
 type Values = { x: number; y: number }[]
 function plot(originalPoints: Values, predictedPoints: Values) {
   tfvis.render.scatterplot(
-    {name: 'Data'},
-    {values: [originalPoints, predictedPoints], series: ['original', 'predicted']}, 
+    {name: 'Lönestatistik för grupp'},
+    {values: [originalPoints, predictedPoints], series: ['Verklig data', 'Vår rekommendation']}, 
     {
-      xLabel: 'Experience',
-      yLabel: 'Salary',
+      xLabel: 'År av erfarenhet',
+      yLabel: 'Lön',
       height: 300
     }
   )
@@ -118,11 +118,11 @@ async function trainModel(model: tf.Sequential, inputs: RankTensor, labels: Rank
     batchSize,
     epochs,
     shuffle: true,
-    /*callbacks: tfvis.show.fitCallbacks(
+    callbacks: tfvis.show.fitCallbacks(
       { name: 'Training Performance' },
       ['loss', 'mse'], 
       { height: 200, callbacks: ['onEpochEnd'] }
-    )*/
+    )
   })
 }
 
@@ -185,7 +185,7 @@ function predictSalaries(
     x: d.experience, y: d.salary,
   }));
   
-  //plot(originalPoints, predictedPoints)
+  plot(originalPoints, predictedPoints)
   return predictedPoints
 }
 

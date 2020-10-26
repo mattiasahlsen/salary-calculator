@@ -39,6 +39,8 @@
     <p v-else class="text-1xl mt-8">Laddar lön...</p>
 
     <!--<pre>{{salaryData}}</pre>-->
+
+    <button @click="getSalaryByExperience(dataPoints)">Get Salary</button>
   </div>
 </template>
 
@@ -48,7 +50,7 @@ import { defineComponent } from 'vue'
 import civilingenjorData from './data/sverige/2019/civilingenjor'
 import civilingenjorItData from './data/sverige/2019/civilingenjor-it'
 
-import { SalaryData, RegionSalaryData, DataPoint } from './data/types'
+import { SalaryData, RegionSalaryData, DataPoint, ExpertiseSalaries } from './data/types'
 
 import getSalaries, { loadModel } from './model'
 
@@ -65,6 +67,8 @@ for (let i = 0; i < 25; i++) {
 experienceOptions.push({ name: '25+', value: 25 })
 
 type SalaryByExperience = { [key: number]: number } | null
+
+let salaryByExperiencePromise
 
 export default defineComponent({
   name: 'App',
@@ -104,8 +108,8 @@ export default defineComponent({
     salaryData(): SalaryData {
       return salaryData[this.education]
     },
-    regionSalaryData(): RegionSalaryData {
-      return this.salaryData[this.region]
+    regionSalaryData(): ExpertiseSalaries {
+      return this.salaryData[this.region].original
     },
     expertiseData(): number[] {
       return this.regionSalaryData[this.expertise]
@@ -129,18 +133,23 @@ export default defineComponent({
     dataPoints: {
       immediate: true,
       async handler(vals) {
-        this.salaryByExperience = null
-        console.log('data points', this.dataPoints)
-        const salaries = await getSalaries(this.dataPoints)
-        const salaryByExperience = salaries.reduce((acc: SalaryByExperience, v: { x: number; y: number }) => {
-          (acc as any)[Math.round(v.x)] = Math.floor(v.y)
-          return acc
-        }, {} as SalaryByExperience)
-        this.salaryByExperience = salaryByExperience
+        /*salaryByExperiencePromise = this.getSalaryByExperience(vals)
+        this.salaryByExperience = await salaryByExperiencePromise
+        console.log(this.education, this.region, this.expertise, Object.values(this.salaryByExperience as any).join(','))*/
       }
     }
   },
   methods: {
+    async getSalaryByExperience(dataPoints: DataPoint[]) {
+        //console.log('data points', dataPoints)
+        const salaries = await getSalaries(dataPoints)
+        const salaryByExperience = salaries.reduce((acc: SalaryByExperience, v: { x: number; y: number }) => {
+          (acc as any)[Math.round(v.x)] = Math.floor(v.y)
+          return acc
+        }, {} as SalaryByExperience)
+        console.log(this.education, this.region, this.expertise, Object.values(salaryByExperience as any).join(','))
+        return salaryByExperience
+    },
     allData() {
       const flat = (arr: any[]) => arr.reduce((acc, v) => acc.concat(v), [])
       const dataSets = flat(Object.values(salaryData).map(dataByEducation => 
