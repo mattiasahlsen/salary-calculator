@@ -8,7 +8,7 @@ export interface ExpertiseSalaries {
 }
 export interface RegionSalaryData {
   original: ExpertiseSalaries;
-  predicted?: Partial<ExpertiseSalaries>;
+  predicted: ExpertiseSalaries;
 }
 
 export interface SalaryData {

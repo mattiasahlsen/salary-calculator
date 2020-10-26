@@ -1,46 +1,67 @@
 <template>
-  <div class="form-container m-auto">
-    <h1 class="text-5xl font-bold">Räkna ut min lön</h1>
-    <p>Var så specifik som möjligt för bästa statistik</p>
+  <div class="lg:flex items-start justify-center">
+    <div class="flex justify-center m-4">
+      <div class="form-container">
 
-    <div class="flex justify-end items-center mt-4">
-      <BaseSelect
-        label="Utbildning"
-        :options="educationOptions"
-        v-model="education"
-      />
+        <h1 class="text-5xl font-bold">Räkna ut min lön</h1>
+        <p>Var så specifik som möjligt för bästa statistik</p>
+
+        <div class="flex justify-end items-center mt-4">
+          <BaseSelect
+            label="Utbildning"
+            :options="educationOptions"
+            v-model="education"
+          />
+        </div>
+
+        <div class="flex justify-end items-center mt-1">
+          <BaseSelect
+            label="Region"
+            :options="regionOptions"
+            v-model="region"
+          />
+        </div>
+
+        <div class="flex justify-end items-center mt-1">
+          <BaseSelect
+            label="Arbetslivserfarenhet (år)"
+            :options="experienceOptions"
+            v-model.number="experience"
+          />
+        </div>
+
+        <div class="flex justify-end items-center mt-1">
+          <BaseSelect
+            label="I min bransch är jag duktigare än"
+            :options="expertiseOptions"
+            v-model="expertise"
+          />
+        </div>
+
+        <p v-if="mySalary" class="text-4xl mt-8">Du ska ha
+          <span class="font-bold text-5xl">{{mySalary}}kr</span> i lön
+        </p>
+
+        <!--<pre>{{salaryData}}</pre>-->
+
+        <!--<button @click="getSalaryByExperience(dataPoints)">Get Salary</button>-->
+      </div>
     </div>
 
-    <div class="flex justify-end items-center mt-1">
-      <BaseSelect
-        label="Region"
-        :options="regionOptions"
-        v-model="region"
-      />
+    <div class="flex flex-col items-center m-4">
+      <h2 class="text-2xl mb-1">Hur lönen är uträknad</h2>
+      <p class="text-left description">
+        Vi har använt <a href="https://sv.wikipedia.org/wiki/Regressionsanalys">linjär regression</a>
+        för att för varje dataset estimera lön som en funktion av antal års erfarenhet.
+        Vi använder ett dataset för varje grupp, där en grupp definieras av kombinationen utbildning,
+        region och hur duktig du är. Om du anser dig vara duktigare än 75% i din bransch till exempel,
+        så rekommenderar vi dig lönen vid 75e percentilen av den insamlade datan.
+        <br><br>
+        Då lönerna är mindre flexibla i början är de vinklade mot den
+        verkliga datan i början (0-4 års erfarenhet).
+      </p>
+      <img src="./assets/it-stockholm-90.png" class="demo-image mt-2">
     </div>
-
-    <div class="flex justify-end items-center mt-1">
-      <BaseSelect
-        label="Arbetslivserfarenhet"
-        :options="experienceOptions"
-        v-model="experience"
-      />
-    </div>
-
-    <div class="flex justify-end items-center mt-1">
-      <BaseSelect
-        label="I min bransch är jag duktigare än"
-        :options="expertiseOptions"
-        v-model="expertise"
-      />
-    </div>
-
-    <p v-if="salaryByExperience" class="text-2xl mt-8">Du ska ha <span class="font-bold">{{mySalary}}kr</span> i lön</p>
-    <p v-else class="text-1xl mt-8">Laddar lön...</p>
-
-    <!--<pre>{{salaryData}}</pre>-->
-
-    <button @click="getSalaryByExperience(dataPoints)">Get Salary</button>
   </div>
 </template>
 
@@ -52,7 +73,7 @@ import civilingenjorItData from './data/sverige/2019/civilingenjor-it'
 
 import { SalaryData, RegionSalaryData, DataPoint, ExpertiseSalaries } from './data/types'
 
-import getSalaries, { loadModel } from './model'
+import getSalaries from './model'
 
 
 const salaryData = {
@@ -108,11 +129,17 @@ export default defineComponent({
     salaryData(): SalaryData {
       return salaryData[this.education]
     },
-    regionSalaryData(): ExpertiseSalaries {
+    regionSalaryDataOriginal(): ExpertiseSalaries {
       return this.salaryData[this.region].original
+    },
+    regionSalaryData(): ExpertiseSalaries {
+      return this.salaryData[this.region].predicted
     },
     expertiseData(): number[] {
       return this.regionSalaryData[this.expertise]
+    },
+    expertiseDataOriginal(): number[] {
+      return this.regionSalaryDataOriginal[this.expertise]
     },
     dataPoints(): DataPoint[] {
       const dataPoints = this.expertiseData.map((salary: number, experience: number) => ({
@@ -121,27 +148,18 @@ export default defineComponent({
       }))
       return dataPoints
     },
-    mySalary(): number | undefined {
-      if (this.salaryByExperience) {
-        const endingSalary = this.salaryByExperience[this.experience]
-        return endingSalary
-      } else return undefined
-
-    }
-  },
-  watch: {
-    dataPoints: {
-      immediate: true,
-      async handler(vals) {
-        /*salaryByExperiencePromise = this.getSalaryByExperience(vals)
-        this.salaryByExperience = await salaryByExperiencePromise
-        console.log(this.education, this.region, this.expertise, Object.values(this.salaryByExperience as any).join(','))*/
+    mySalary(): number {
+      if (this.experience < 5) {
+        const recc = this.expertiseData[this.experience]
+        const original = this.expertiseDataOriginal[this.experience]
+        return Math.round(recc + (original - recc) * 2 / (3 + this.experience))
+      } else {
+        return this.expertiseData[this.experience]
       }
     }
   },
   methods: {
     async getSalaryByExperience(dataPoints: DataPoint[]) {
-        //console.log('data points', dataPoints)
         const salaries = await getSalaries(dataPoints)
         const salaryByExperience = salaries.reduce((acc: SalaryByExperience, v: { x: number; y: number }) => {
           (acc as any)[Math.round(v.x)] = Math.floor(v.y)
@@ -149,17 +167,6 @@ export default defineComponent({
         }, {} as SalaryByExperience)
         console.log(this.education, this.region, this.expertise, Object.values(salaryByExperience as any).join(','))
         return salaryByExperience
-    },
-    allData() {
-      const flat = (arr: any[]) => arr.reduce((acc, v) => acc.concat(v), [])
-      const dataSets = flat(Object.values(salaryData).map(dataByEducation => 
-        Object.values(dataByEducation).map(dataByRegion => dataByRegion.data)
-      ))
-      return flat(dataSets.map((d: any) => flat(
-        Object.values(d).map((dataPoints: any) =>
-          dataPoints.map((salary: number, experience: number) => ({ salary, experience }))
-        )
-      )))
     },
   }
 });
@@ -171,11 +178,29 @@ export default defineComponent({
 }
 
 #app {
-  font-family: 'Nunito', sans-serif;
+  //font-family: 'Nunito', sans-serif;
+  font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: $text;
-  margin-top: 60px;
+  margin-top: 20px;
+}
+
+.description {
+  max-width: 30rem;
+}
+.demo-image {
+  width: 100%;
+  border: 2px solid $dark-1;
+  max-width: 30rem;
+}
+
+a {
+  color: $primary;
+  transition: color 0.2s ease;
+  &:hover {
+    color: $primary-2;
+  }
 }
 </style>
