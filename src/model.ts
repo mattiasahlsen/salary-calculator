@@ -7,7 +7,7 @@ type DataPoint = { salary: number; experience: number }
 type TrainingData = DataPoint[]
 
 const BATCH_SIZE = 32
-const EPOCHS = 20
+const EPOCHS = 200
 
 const INPUT_DIM = 3
 
@@ -123,10 +123,10 @@ async function trainModel(model: tf.Sequential, inputs: RankTensor, labels: Rank
       ['loss', 'mse'], 
       { height: 200, callbacks: ['onEpochEnd'] }
     )*/
-  });
+  })
 }
 
-function testModel(
+function predictSalaries(
   model: tf.Sequential,
   inputData: TrainingData,
   {
@@ -147,7 +147,7 @@ function testModel(
   const [xs, preds] = tf.tidy(() => {
     
     const yearsOfExperience: number[] = []
-    for (let i = 1; i < 25; i++) {
+    for (let i = 0; i <= 25; i++) {
       yearsOfExperience.push(i)
     }
 
@@ -185,10 +185,11 @@ function testModel(
     x: d.experience, y: d.salary,
   }));
   
-  plot(originalPoints, predictedPoints)
+  //plot(originalPoints, predictedPoints)
+  return predictedPoints
 }
 
-export default async function newModel(data: TrainingData) {
+export default async function getSalaries(data: TrainingData) {
   const model = createModel(INPUT_DIM)
   //tfvis.show.modelSummary({name: 'Model Summary'}, model);
 
@@ -209,19 +210,20 @@ export default async function newModel(data: TrainingData) {
       
   // Train the model  
   await trainModel(model, inputTensor, labelTensor);
-  console.log('Done Training');
+  console.log('New model done');
   //console.log('weights', model.getWeights())
   //console.log('weights values:', await Promise.all(model.getWeights().map(w => w.data())))
    
 
-  testModel(model, data, {
+  const salaries = predictSalaries(model, data, {
     inputMin: inputTensorData.min,
     inputMax: inputTensorData.max,
     labelMin: labelTensorData.min,
     labelMax: labelTensorData.max,
   });
 
-  return model
+  return salaries
+  //return model
 }
 
 // import file1 from './data/sverige/2019/weights/civing-Hela Sverige-50.weights.bin'

@@ -35,7 +35,8 @@
       />
     </div>
 
-    <p class="text-2xl mt-8">Du ska ha <span class="font-bold">{{mySalary}}kr</span> i lön</p>
+    <p v-if="salaryByExperience" class="text-2xl mt-8">Du ska ha <span class="font-bold">{{mySalary}}kr</span> i lön</p>
+    <p v-else class="text-1xl mt-8">Laddar lön...</p>
 
     <!--<pre>{{salaryData}}</pre>-->
   </div>
@@ -47,9 +48,9 @@ import { defineComponent } from 'vue'
 import civilingenjorData from './data/sverige/2019/civilingenjor'
 import civilingenjorItData from './data/sverige/2019/civilingenjor-it'
 
-import SalaryData, { RegionSalaryData } from './data/types'
+import { SalaryData, RegionSalaryData, DataPoint } from './data/types'
 
-import newModel, { loadModel } from './model'
+import getSalaries, { loadModel } from './model'
 
 
 const salaryData = {
@@ -63,7 +64,7 @@ for (let i = 0; i < 25; i++) {
 }
 experienceOptions.push({ name: '25+', value: 25 })
 
-interface DataPoint { salary: number; experience: number }
+type SalaryByExperience = { [key: number]: number } | null
 
 export default defineComponent({
   name: 'App',
@@ -94,7 +95,9 @@ export default defineComponent({
         { name: '50%', value: '50', },
         { name: '75%', value: '75', },
         { name: '90%', value: '90', },
-      ]
+      ],
+
+      salaryByExperience: null as SalaryByExperience
     }
   },
   computed: {
@@ -105,40 +108,37 @@ export default defineComponent({
       return this.salaryData[this.region]
     },
     expertiseData(): number[] {
-      return this.regionSalaryData.data[this.expertise]
+      return this.regionSalaryData[this.expertise]
     },
     dataPoints(): DataPoint[] {
-      const dataPoints = this.expertiseData.slice(1).map((salary: number, experience: number) => ({
+      const dataPoints = this.expertiseData.map((salary: number, experience: number) => ({
         salary,
-        experience: experience + 1,
+        experience,
       }))
       return dataPoints
     },
-    mySalary(): number {
-      const entrySalary: number = this.regionSalaryData.firstJob[this.expertise]
+    mySalary(): number | undefined {
+      if (this.salaryByExperience) {
+        const endingSalary = this.salaryByExperience[this.experience]
+        return endingSalary
+      } else return undefined
 
-      const yearlyIncreases = this.regionSalaryData.yearlyIncrease[this.expertise]
-      const yearlyIncreaseIndex = Math.floor(this.experience / 5)
-      const yearlyIncrease: number = yearlyIncreases[yearlyIncreaseIndex]
-
-      //console.log(yearlyIncrease, this.experience)
-      const endingSalary = entrySalary + yearlyIncrease * this.experience
-      return endingSalary
     }
   },
   watch: {
     dataPoints: {
       immediate: true,
       async handler(vals) {
-        const model = await newModel(vals)
-        console.log('done')
+        this.salaryByExperience = null
+        console.log('data points', this.dataPoints)
+        const salaries = await getSalaries(this.dataPoints)
+        const salaryByExperience = salaries.reduce((acc: SalaryByExperience, v: { x: number; y: number }) => {
+          (acc as any)[Math.round(v.x)] = Math.floor(v.y)
+          return acc
+        }, {} as SalaryByExperience)
+        this.salaryByExperience = salaryByExperience
       }
     }
-  },
-  async mounted() {
-    //const model = loadModel('model')
-    //const dataPoints = this.allData()
-    //const model = await newModel(dataPoints)
   },
   methods: {
     allData() {
