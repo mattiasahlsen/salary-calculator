@@ -1,24 +1,4 @@
 # salary-calculator
-
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Uses Tensorflow for Javascript to create a model that estimates salary based on
+parameters. The model is trained using linear regression on data from SACO. This is
+a prototype and it only uses a small subset of SACO's data for research purposes.

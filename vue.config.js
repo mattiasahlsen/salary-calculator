@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  publicPath: '/salary-calculator',
+  //publicPath: '/salary-calculator',
 
   chainWebpack: config => {
     const types = ['vue-modules', 'vue', 'normal-modules', 'normal']

@@ -1,6 +1,6 @@
 <template>
   <div class="lg:flex items-start justify-center">
-    <div class="flex justify-center m-4">
+    <div class="flex justify-center m-2 lg:m-8">
       <div class="form-container">
 
         <h1 class="text-5xl font-bold">Räkna ut min lön</h1>
@@ -48,17 +48,27 @@
       </div>
     </div>
 
-    <div class="flex flex-col items-center m-4">
+    <div class="flex flex-col items-center p-4 description">
       <h2 class="text-2xl mb-1">Hur lönen är uträknad</h2>
-      <p class="text-left description">
-        Vi har använt <a href="https://sv.wikipedia.org/wiki/Regressionsanalys">linjär regression</a>
+      <p class="text-left">
+        Algoritmen använder <a href="https://sv.wikipedia.org/wiki/Regressionsanalys">linjär regression</a>
         för att för varje dataset estimera lön som en funktion av antal års erfarenhet.
-        Vi använder ett dataset för varje grupp, där en grupp definieras av kombinationen utbildning,
-        region och hur duktig du är. Om du anser dig vara duktigare än 75% i din bransch till exempel,
-        så rekommenderar vi dig lönen vid 75e percentilen av den insamlade datan.
+        För varje <i>grupp</i> används ett eget dataset, där en <i>grupp</i> definieras av kombinationen:
+      </p>
+        
+      <ul class="self-stretch text-left my-2">
+        <li>- utbildning</li>
+        <li>- region</li>
+        <li>- hur duktig du är</li>
+      </ul>
+
+      <p class="text-left">
+        Om du anser dig vara duktigare än 75% i din bransch till exempel,
+        så används lönen vid den 75e percentilen av datasetet.
+        Då lönerna är mindre flexibla i början är de partiska mot de
+        verkliga datapunkterna i början (0-4 års erfarenhet).
         <br><br>
-        Då lönerna är mindre flexibla i början är de vinklade mot den
-        verkliga datan i början (0-4 års erfarenhet).
+        Datan som används är från SACO.
       </p>
       <img src="./assets/it-stockholm-90.png" class="demo-image mt-2">
     </div>
@@ -189,6 +199,8 @@ export default defineComponent({
 
 .description {
   max-width: 30rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 .demo-image {
   width: 100%;
